@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_theme.dart';
 import 'features/github_search/presentation/providers/providers.dart';
-import 'features/github_search/presentation/screens/search_screen.dart';
+import 'features/splash/presentation/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,9 +25,9 @@ class GithubExplorerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GitHub Explorer',
+      title: 'GitEx',
       theme: AppTheme.lightTheme,
-      home: const SearchScreen(),
+      home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
