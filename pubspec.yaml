@@ -62,7 +62,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/git_logo.png"
+  image_path: "assets/images/AppLogo.png"
   min_sdk_size: 21
 
 # For information on the generic Dart part of this file, see the
