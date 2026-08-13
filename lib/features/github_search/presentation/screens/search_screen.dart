@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/dialog_utils.dart';
 import '../providers/search_provider.dart';
 import '../providers/recent_searches_provider.dart';
 import '../widgets/user_profile_card.dart';
@@ -33,30 +36,38 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final searchState = ref.watch(searchProvider);
     final recentSearches = ref.watch(recentSearchesProvider);
 
+    ref.listen(searchProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        if (next.error != AppStrings.userNotFound) {
+          DialogUtils.showErrorDialog(context, next.error!);
+        }
+      }
+    });
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        title: const Text('GitHub Explorer'),
-        centerTitle: true,
-        backgroundColor: Colors.blue.shade700,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            const SizedBox(height: 48), // Increased gap below app bar
+            const SizedBox(height: 32),
+            // GitHub Logo
+            Image.asset(
+              'assets/images/git_logo.png',
+              height: 60,
+              color: AppColors.textDark,
+            ),
+            const SizedBox(height: 40),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.cardBackground,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: AppColors.cardShadow,
                       blurRadius: 10,
-                      offset: const Offset(0, 4),
+                      offset: Offset(0, 4),
                     ),
                   ],
                 ),
@@ -65,11 +76,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   textInputAction: TextInputAction.search,
                   onSubmitted: _onSearch,
                   decoration: InputDecoration(
-                    hintText: 'Search GitHub username...',
-                    hintStyle: TextStyle(color: Colors.grey.shade400),
-                    prefixIcon: Icon(Icons.search, color: Colors.grey.shade500),
+                    hintText: AppStrings.searchHint,
+                    hintStyle: const TextStyle(color: AppColors.textHint),
+                    prefixIcon: const Icon(Icons.search, color: AppColors.textMuted),
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.clear, color: Colors.grey.shade400),
+                      icon: const Icon(Icons.clear, color: AppColors.textHint),
                       onPressed: () {
                         _searchController.clear();
                       },
@@ -82,9 +93,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Enter a GitHub username to search for profiles',
+              AppStrings.searchNote,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey.shade500,
+                color: AppColors.textMuted,
               ),
             ),
             const SizedBox(height: 20),
@@ -95,9 +106,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Recent Searches',
+                      AppStrings.recentSearches,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Colors.grey.shade500,
+                        color: AppColors.textMuted,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -111,12 +122,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         itemBuilder: (context, index) {
                           final search = recentSearches[index];
                           return ActionChip(
-                            avatar: Icon(Icons.history, size: 16, color: Colors.blue.shade700),
+                            avatar: const Icon(Icons.history, size: 16, color: AppColors.primary),
                             label: Text(search),
-                            backgroundColor: Colors.white,
+                            backgroundColor: AppColors.cardBackground,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
-                              side: BorderSide(color: Colors.grey.shade200),
+                              side: const BorderSide(color: AppColors.border),
                             ),
                             onPressed: () {
                               _searchController.text = search;
@@ -133,7 +144,15 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
-
+                layoutBuilder: (currentChild, previousChildren) {
+                  return Stack(
+                    alignment: Alignment.topCenter,
+                    children: <Widget>[
+                      ...previousChildren,
+                      if (currentChild != null) currentChild,
+                    ],
+                  );
+                },
                 child: _buildBody(searchState),
               ),
             ),
@@ -151,29 +170,32 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       );
     }
 
-    if (state.error != null) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 40.0, left: 32.0, right: 32.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                shape: BoxShape.circle,
+    if (state.error == AppStrings.userNotFound) {
+      return SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 40.0, left: 32.0, right: 32.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: AppColors.errorBackground,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.person_off, size: 48, color: AppColors.errorIcon),
               ),
-              child: Icon(Icons.error_outline, size: 48, color: Colors.red.shade400),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              state.error!,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+              const SizedBox(height: 24),
+              Text(
+                AppStrings.userNotFound,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
@@ -197,37 +219,39 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 60.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              shape: BoxShape.circle,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 60.0, left: 20, right: 20, bottom: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: AppColors.primaryLight,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.person_search, size: 80, color: AppColors.primary),
             ),
-            child: Icon(Icons.person_search, size: 80, color: Colors.blue.shade300),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Explore GitHub Profiles',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade800,
+            const SizedBox(height: 24),
+            Text(
+              AppStrings.exploreTitle,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Search for developers and\nview their repositories',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey.shade500,
-              height: 1.5,
+            const SizedBox(height: 8),
+            Text(
+              AppStrings.exploreSubtitle,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.textMuted,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

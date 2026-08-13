@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../data/models/github_user.dart';
 
 class UserProfileCard extends StatelessWidget {
@@ -13,18 +15,18 @@ class UserProfileCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: AppColors.cardShadow,
             blurRadius: 16,
-            offset: const Offset(0, 8),
+            offset: Offset(0, 8),
           ),
         ],
       ),
       child: Material(
-        color: Colors.transparent,
+        color: AppColors.transparent,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(20),
@@ -38,20 +40,20 @@ class UserProfileCard extends StatelessWidget {
                     Hero(
                       tag: 'avatar_${user.login}',
                       child: Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: AppColors.avatarShadow,
                               blurRadius: 8,
-                              offset: const Offset(0, 4),
+                              offset: Offset(0, 4),
                             ),
                           ],
                         ),
                         child: CircleAvatar(
                           radius: 42,
                           backgroundImage: CachedNetworkImageProvider(user.avatarUrl),
-                          backgroundColor: Colors.grey.shade200,
+                          backgroundColor: AppColors.avatarBackground,
                         ),
                       ),
                     ),
@@ -65,24 +67,24 @@ class UserProfileCard extends StatelessWidget {
                               user.name!,
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade900,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           const SizedBox(height: 4),
                           Text(
                             '@${user.login}',
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Colors.blue.shade700,
+                              color: AppColors.primary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    Icon(
+                    const Icon(
                       Icons.arrow_forward_ios,
                       size: 16,
-                      color: Colors.grey.shade400,
+                      color: AppColors.textHint,
                     ),
                   ],
                 ),
@@ -91,7 +93,7 @@ class UserProfileCard extends StatelessWidget {
                   Text(
                     user.bio!,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey.shade700,
+                      color: AppColors.textSecondary,
                       height: 1.5,
                     ),
                   ),
@@ -100,17 +102,17 @@ class UserProfileCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
+                    color: AppColors.background,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildStat(context, 'Followers', user.followers.toString()),
+                      _buildStat(context, AppStrings.followers, user.followers.toString()),
                       _buildDivider(),
-                      _buildStat(context, 'Following', user.following.toString()),
+                      _buildStat(context, AppStrings.following, user.following.toString()),
                       _buildDivider(),
-                      _buildStat(context, 'Repos', user.publicRepos.toString()),
+                      _buildStat(context, AppStrings.repos, user.publicRepos.toString()),
                     ],
                   ),
                 ),
@@ -126,7 +128,7 @@ class UserProfileCard extends StatelessWidget {
     return Container(
       height: 30,
       width: 1,
-      color: Colors.grey.shade300,
+      color: AppColors.divider,
     );
   }
 
@@ -137,14 +139,14 @@ class UserProfileCard extends StatelessWidget {
           value,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Colors.grey.shade900,
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey.shade600,
+            color: AppColors.textSecondary,
             fontWeight: FontWeight.w500,
           ),
         ),

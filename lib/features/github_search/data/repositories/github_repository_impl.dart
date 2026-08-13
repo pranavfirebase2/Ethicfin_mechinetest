@@ -5,6 +5,7 @@ import '../../domain/repositories/github_repository.dart';
 import '../datasources/github_remote_datasource.dart';
 import '../models/github_user.dart';
 import '../models/github_repo.dart';
+import '../../../../core/constants/app_strings.dart';
 
 class GithubRepositoryImpl implements GithubRepository {
   final GithubRemoteDataSource remoteDataSource;
@@ -18,14 +19,14 @@ class GithubRepositoryImpl implements GithubRepository {
       return Right(user);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        return const Left(ServerFailure('User not found'));
+        return const Left(ServerFailure(AppStrings.userNotFound));
       }
-      return const Left(ServerFailure('Failed to fetch user. Please check your network.'));
+      return const Left(NetworkFailure(AppStrings.networkError));
     } catch (e) {
       if (e.toString().contains('User not found')) {
-        return const Left(ServerFailure('User not found'));
+        return const Left(ServerFailure(AppStrings.userNotFound));
       }
-      return const Left(ServerFailure('An unexpected error occurred.'));
+      return const Left(ServerFailure(AppStrings.networkError));
     }
   }
 

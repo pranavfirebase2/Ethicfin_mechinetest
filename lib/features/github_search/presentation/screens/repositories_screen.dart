@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/dialog_utils.dart';
 import '../../data/models/github_user.dart';
 import '../providers/repositories_provider.dart';
 import '../widgets/repo_list_tile.dart';
@@ -26,9 +29,18 @@ class _RepositoriesScreenState extends ConsumerState<RepositoriesScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(repositoriesProvider);
 
+    ref.listen(repositoriesProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        DialogUtils.showErrorDialog(context, next.error!);
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.user.login}\'s Repos'),
+        title: const Text(AppStrings.repositories),
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.textInverse,
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.sort),
@@ -38,8 +50,8 @@ class _RepositoriesScreenState extends ConsumerState<RepositoriesScreen> {
                 SnackBar(
                   content: Text(
                     state.sortType == SortType.stars 
-                      ? 'Sorted by Recently Updated' 
-                      : 'Sorted by Stars'
+                      ? AppStrings.sortedByRecentlyUpdated 
+                      : AppStrings.sortedByStars
                   ),
                   duration: const Duration(seconds: 1),
                 ),
@@ -57,28 +69,8 @@ class _RepositoriesScreenState extends ConsumerState<RepositoriesScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (state.error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 48, color: Colors.red.shade300),
-              const SizedBox(height: 16),
-              Text(
-                state.error!,
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     if (state.repos.isEmpty) {
-      return const Center(child: Text('No repositories found.'));
+      return const Center(child: Text(AppStrings.noRepositoriesFound));
     }
 
     return ListView.builder(
